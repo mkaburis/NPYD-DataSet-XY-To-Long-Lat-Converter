@@ -2,7 +2,7 @@
 
 ##### Designed by Mihail Kaburis for the NJIT/HU REU (Summer 2019)
 
-###### Adapted from https://github.com/mattpiccolella/stop-and-frisk/blob/
+###### Adapted from https://github.com/mattpiccolella/stop-and-frisk
 
 ## Getting Started
 
