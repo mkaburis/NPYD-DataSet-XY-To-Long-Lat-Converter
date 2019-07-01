@@ -50,7 +50,7 @@ def main (input_csv, output_csv):
 def instructions():
     sys.stderr.write("Welcome to xy_to_longlat_converter.py\n")
     sys.stderr.write("Utilizing this program requires the following syntax:\n")
-    sys.stderr.write("python [input_name.csv] [output_name.csv]\n")
+    sys.stderr.write("python xy_to_longlat_converter.py [input_name.csv] [output_name.csv]\n")
 
 if __name__ == "__main__":
 
