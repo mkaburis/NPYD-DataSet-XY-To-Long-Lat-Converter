@@ -21,17 +21,26 @@ def main (input_csv, output_csv):
 
     # Load in the dataset
     file = open(input_csv, 'r')
-    dataset = pd.read_csv(input_csv)
-
-    # Create a data frame with the X and Y coords of stop locations
-    df = pd.DataFrame(dataset, columns=['STOP_LOCATION_X', 'STOP_LOCATION_Y'])
+    dataset = pd.read_csv(input_csv, skipinitialspace=True, dtype = {"xcoord": float, "ycoord": float}, low_memory = False, encoding='latin-1')
 
     # Convert coords to an object of long/lat
     proj = Proj(
         '+proj=lcc +lat_1=41.03333333333333 +lat_2=40.66666666666666 +lat_0=40.16666666666666 +lon_0=-74 '
         '+x_0=300000.0000000001 +y_0=0 +ellps=GRS80 +datum=NAD83 +to_meter=0.3048006096012192 +no_defs')
 
-    results = df.apply(lambda row: proj(row['STOP_LOCATION_X'], row['STOP_LOCATION_Y'], inverse=True), axis=1)
+    # Check year of SQF dataset to determine how we will process coordinates
+
+    if(dataset["year"][0] <= 2016):
+        # Create a data frame with the X and Y coords of stop locations
+        df = pd.DataFrame(dataset, columns=['xcoord', 'ycoord'])
+
+        results = df.apply(lambda row: proj(row['xcoord'], row['ycoord'], inverse=True), axis=1)
+
+    else:
+        # Create a data frame with the X and Y coords of stop locations
+        df = pd.DataFrame(dataset, columns=['STOP_LOCATION_X', 'STOP_LOCATION_Y'])
+
+        results = df.apply(lambda row: proj(row['STOP_LOCATION_X'], row['STOP_LOCATION_Y'], inverse=True), axis=1)
 
 
     # iterate through the long and lat values
@@ -40,8 +49,15 @@ def main (input_csv, output_csv):
         longitude.append(results[i][0])
         latitude.append(results[i][1])
 
-    # Append longitude and latidude columns to the output.csv
-    dataset = dataset.assign(longitude=longitude, latitude=latitude)
+    # Append longitude and latitude columns to output.csv
+    dataset = dataset.assign(latitude=latitude, longitude=longitude)
+
+    # Sort 2017 and 2018 datasets correctly
+    if dataset["year"][0] >= 2017:
+        cols = list(dataset.columns.values)
+        c1, c2 = cols.index('longitude'), cols.index('latitude')
+        cols[c2], cols[c1] = cols[c1], cols[c2]
+        dataset = dataset[cols]
 
     # output the output.csv file so it is accessible for the user
     dataset.to_csv(output_csv, index = False)
